@@ -17,11 +17,28 @@ app.use(express.static('public'));
 app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
-
+const isInvalidDate = (date) => date.toUCTString === "Invalid date"
 
 // your first API endpoint... 
-app.get("/api/hello", function (req, res) {
-  res.json({greeting: 'hello API'});
+app.get("/api/:date", function (req, res) {
+  let date = new Date(req.params.date)
+
+  if(isInvalidDate(date)){
+    date = new Date(+req.params.date)
+  }
+  if(isInvalidDate(date)){
+    res.json({error: "Invalid Date "})
+    return;
+  }
+  res.json({
+    unix:date.getTime(),
+    uct:date.toUTCString()
+  });
+  app.get('/apl" ,(req,res) => {
+          res.json({
+             unix:date.getTime(),
+             uct:date.toUTCString()
+          })
 });
 
 
