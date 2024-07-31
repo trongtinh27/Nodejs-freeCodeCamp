@@ -23,26 +23,18 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-// Endpoint to handle date input
 app.get("/api/:date?", function (req, res) {
-  let dateString = req.params.date;
+  const dateString = req.params.date;
   let date;
 
-  // Check if date parameter is empty, return current date
   if (!dateString) {
     date = new Date();
+  } else if (!isNaN(parseInt(dateString))) {
+    date = new Date(parseInt(dateString));
   } else {
-    // Check if date string is a number (Unix timestamp)
-    if (!isNaN(dateString)) {
-      // Convert string to number
-      date = new Date(parseInt(dateString));
-    } else {
-      // Use string as a date
-      date = new Date(dateString);
-    }
+    date = new Date(dateString);
   }
 
-  // Check if date is valid
   if (date.toString() === "Invalid Date") {
     res.json({ error: "Invalid Date" });
   } else {
