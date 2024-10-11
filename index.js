@@ -38,13 +38,13 @@ app.get("/api/:date", function (req,res) {
   }
   res.json({
     unix: date.getTime(),
-    utx: date.toUTCString()
+    utc: date.toUTCString()
   });
 })
 app.get("/api", function(req,res) {
   res.json({
     unix: new Date().getTime(),
-    utx: new Date().toUTCString()
+    utc: new Date().toUTCString()
   })
 })
 
