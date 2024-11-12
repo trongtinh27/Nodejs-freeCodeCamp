@@ -25,6 +25,35 @@ app.get("/api/hello", function (req, res) {
 });
 
 
+app.get("/api/:date_string", function (req, res)
+{
+  let date_string = req.params.date_string;
+
+  if(parseInt(date_string) > 10000)
+  {
+    let unixTime = new Date(parseInt(date_string));
+    res.json({
+      "unix": unixTime.getTime(),
+      "utc": unixTime.toUTCString()
+    });
+  }
+
+
+  let passedVal = new Date(date_string);
+
+  if (passedVal == "Invalid Date")
+  {
+    res.json({error: "Invalid Date" });
+  } else
+  {
+    res.json({
+      "unix": passedVal.getTime(),
+      "utc": passedVal.toUTCString()
+    })
+  }
+
+})
+
 
 // Listen on port set in environment variable or default to 3000
 var listener = app.listen(process.env.PORT || 3000, function () {
