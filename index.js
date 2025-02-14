@@ -22,45 +22,15 @@ app.get("/", function (req, res) {
 });
 
 
-function parseUnixOrDate(input) {
-  try {
-    // Handle undefined or empty input: return current Unix timestamp and UTC time
-    if (typeof input === "undefined" || input.length === 0) {
-      let currentDate = new Date();
-      return { unix: currentDate.getTime(), utc: currentDate.toUTCString() };
-    }
+app.get("/api/:date?", (req, res) => {
+  const { date } = req.params;
+  const parsedDate = date ? new Date(isNaN(date) ? date : Number(date)) : new Date();
 
-    if (typeof input !== "string") return { error: "Invalid Date" };
-
-    // Check if the input is a valid Unix timestamp
-    if (!isNaN(input) && input >= 0 && input <= 9999999999999) {
-      let date = new Date(Number(input));
-      return { unix: date.getTime(), utc: date.toUTCString() };
-    }
-
-    // Check if input follows YYYY-MM-DD format
-    let parts = input.split("-");
-    if (parts.length === 3) {
-      let [year, month, day] = parts.map(Number);
-      let date = new Date(`${year}-${month}-${day}`);
-      
-      // Validate date and return result
-      return date.getFullYear() === year && date.getMonth() + 1 === month && date.getDate() === day
-        ? { unix: date.getTime(), utc: date.toUTCString() }
-        : { error: "Invalid Date" };
-    }
-
-    return { error: "Invalid Date" };
-  } catch (error) {
-    return { error: "Invalid Date" };
+  if (isNaN(parsedDate.getTime())) {
+    res.json({ error: "Invalid Date" });
+  } else {
+    res.json({ unix: parsedDate.getTime(), utc: parsedDate.toUTCString() });
   }
-}
-
-app.get("/api/:date?", (req, res, next) => {
-  req.params.date;
-  next();
-}, (req, res, next) => {
-  res.json(parseUnixOrDate(req.params.date));
 });
 
 
