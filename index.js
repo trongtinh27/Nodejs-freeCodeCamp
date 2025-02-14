@@ -22,22 +22,37 @@ app.get("/", function (req, res) {
 });
 
 
-function isValidUnixOrDate(input) {
+function parseUnixOrDate(input) {
   try {
-      if (typeof input !== "string") return false;
-      if (/^\d+$/.test(input)) {  
-          let timestamp = Number(input);
-          if (timestamp >= 0 && timestamp <= 9999999999999) return true;
-      }
-      if (/^\d{4}-\d{2}-\d{2}$/.test(input)) {
-          let date = new Date(input);
-          let [year, month, day] = input.split("-").map(Number);
-          return date.getFullYear() === year && date.getMonth() + 1 === month && date.getDate() === day;
-      }
-      return false;
+    // Handle undefined or empty input: return current Unix timestamp and UTC time
+    if (typeof input === "undefined" || input.length === 0) {
+      let currentDate = new Date();
+      return { unix: currentDate.getTime(), utc: currentDate.toUTCString() };
+    }
+
+    if (typeof input !== "string") return { error: "Invalid Date" };
+
+    // Check if the input is a valid Unix timestamp
+    if (!isNaN(input) && input >= 0 && input <= 9999999999999) {
+      let date = new Date(Number(input));
+      return { unix: date.getTime(), utc: date.toUTCString() };
+    }
+
+    // Check if input follows YYYY-MM-DD format
+    let parts = input.split("-");
+    if (parts.length === 3) {
+      let [year, month, day] = parts.map(Number);
+      let date = new Date(`${year}-${month}-${day}`);
+      
+      // Validate date and return result
+      return date.getFullYear() === year && date.getMonth() + 1 === month && date.getDate() === day
+        ? { unix: date.getTime(), utc: date.toUTCString() }
+        : { error: "Invalid Date" };
+    }
+
+    return { error: "Invalid Date" };
   } catch (error) {
-      console.error("Error in isValidUnixOrStrictDate:", error);
-      return false;
+    return { error: "Invalid Date" };
   }
 }
 
@@ -45,7 +60,7 @@ app.get("/api/:date?", (req, res, next) => {
   req.params.date;
   next();
 }, (req, res, next) => {
-  res.json({ echo: typeof(req.params.date) });
+  res.json(parseUnixOrDate(req.params.date));
 });
 
 
