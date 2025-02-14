@@ -22,18 +22,31 @@ app.get("/", function (req, res) {
 });
 
 
-// your first API endpoint... 
-app.get("/api/hello", function (req, res) {
-  res.json({greeting: 'hello API'});
-});
+function isValidUnixOrDate(input) {
+  try {
+      if (typeof input !== "string") return false;
+      if (/^\d+$/.test(input)) {  
+          let timestamp = Number(input);
+          if (timestamp >= 0 && timestamp <= 9999999999999) return true;
+      }
+      if (/^\d{4}-\d{2}-\d{2}$/.test(input)) {
+          let date = new Date(input);
+          let [year, month, day] = input.split("-").map(Number);
+          return date.getFullYear() === year && date.getMonth() + 1 === month && date.getDate() === day;
+      }
+      return false;
+  } catch (error) {
+      console.error("Error in isValidUnixOrStrictDate:", error);
+      return false;
+  }
+}
 
-app.get("/api/:date", (req, res, next) => {
+app.get("/api/:date?", (req, res, next) => {
   req.params.date;
   next();
 }, (req, res, next) => {
-  res.json({ echo: req.params.date });
+  res.json({ echo: typeof(req.params.date) });
 });
-
 
 
 // Listen on port set in environment letiable or default to 3000
