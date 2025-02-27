@@ -26,14 +26,24 @@ app.get("/api/hello", function (req, res) {
 
 // Vamos a responder algo en la ruta /api/:date
 app.get('/api/:date',(req,res) => {
-  let date = req.params.date;
-  let unixDate = new Date(date).getTime();
-  let utcDate = new Date(date).toUTCString();
-  if(unixDate){
-    res.json({unix: unixDate, utc: utcDate});
-  }else{
-    res.json({error: "Invalid Date"});
+  let dateString = req.params.date;
+
+  //A 4 digit number is a valid ISO-8601 for the beginning of that year
+  //5 digits or more must be a unix time, until we reach a year 10,000 problem
+  if (/\d{5,}/.test(dateString)) {
+    let dateInt = parseInt(dateString);
+    //Date regards numbers as unix timestamps, strings are processed differently
+    res.json({ unix: dateString, utc: new Date(dateInt).toUTCString() });
+  } else {
+    let dateObject = new Date(dateString);
+
+    if (dateObject.toString() === "Invalid Date") {
+      res.json({ error: "Invalid Date" });
+    } else {
+      res.json({ unix: dateObject.valueOf(), utc: dateObject.toUTCString() });
+    }
   }
+  
 })
 
 
