@@ -24,16 +24,27 @@ app.get("/api/hello", function (req, res) {
   res.json({ greeting: "hello API" });
 });
 
-app.get("/api/:date", (req, res) => {
+app.get("/api/:date?", (req, res) => {
   const { date } = req.params;
 
-  const isNumberic = /^\d+$/.test(date);
+  let date_object;
 
-  const date_object = isNumberic ? new Date(Number(date)) : new Date(date);
+  if (!date) {
+    date_object = new Date();
+  } else if (/^\d+$/.test(date)) {
+    // Nếu là số → timestamp
+    date_object = new Date(Number(date));
+  } else {
+    // Nếu là chuỗi ngày
+    date_object = new Date(date);
+  }
 
-  console.log("date_object", date_object);
-
+  // Kiểm tra date hợp lệ
   if (isNaN(date_object.getTime())) {
+    return res.json({ error: "Invalid Date" });
+  }
+
+  if (!date && isNaN(date_object.getTime())) {
     return res.json({ error: "Invalid Date" });
   }
 
